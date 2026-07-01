@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.0 — 2026-07
+## v2.0 - 2026-07
 
 Fixes and upgrades following a structured self-review of v1:
 
@@ -8,9 +8,9 @@ Fixes and upgrades following a structured self-review of v1:
 - **Margins:** EBIT margin now converges linearly to the long-run historical average instead of holding the current (possibly peak) margin flat forever.
 - **Working capital (conceptual fix):** v1 used the NWC *level* as a percentage of revenue where a *marginal* ratio belongs. v2 charges incremental ΔNWC per dollar of revenue change, estimated as the median of yearly ΔNWC/ΔRevenue from balance-sheet history, clipped for sanity, with a clearly labeled fallback to the level proxy when fewer than three usable yearly observations exist.
 - **Beta:** now estimated directly via OLS of 5 years of weekly returns against SPY (slope = beta; R² and sample size reported). Yahoo's opaque single figure is demoted to a labeled fallback.
-- **Historical CAGR:** switched from endpoint-to-endpoint (fragile — whipsaws with whichever two years the data source returns) to a log-linear regression of ln(revenue) on time, with the sample window labeled on every printout. Both figures are printed so the method's impact is visible.
-- **Reverse DCF units:** now reports both the implied *initial* growth and the implied *horizon CAGR*. Only the horizon CAGR is compared against historical CAGR — both are compound multi-year rates, so the expectations gap is finally an apples-to-apples number. Added a WACC ±1% sensitivity table for the implied growth.
-- **Self-validation:** new runtime cell verifies (1) a forward→reverse round-trip recovers the input growth to within 1e-4 and (2) the value function is strictly monotonic in growth across the solver bracket — the uniqueness guarantee for the implied growth. Failures print loudly before any downstream results.
+- **Historical CAGR:** switched from endpoint-to-endpoint (fragile - whipsaws with whichever two years the data source returns) to a log-linear regression of ln(revenue) on time, with the sample window labeled on every printout. Both figures are printed so the method's impact is visible.
+- **Reverse DCF units:** now reports both the implied *initial* growth and the implied *horizon CAGR*. Only the horizon CAGR is compared against historical CAGR - both are compound multi-year rates, so the expectations gap is finally an apples-to-apples number. Added a WACC ±1% sensitivity table for the implied growth.
+- **Self-validation:** new runtime cell verifies (1) a forward→reverse round-trip recovers the input growth to within 1e-4 and (2) the value function is strictly monotonic in growth across the solver bracket - the uniqueness guarantee for the implied growth. Failures print loudly before any downstream results.
 
 ## v1.0
 
