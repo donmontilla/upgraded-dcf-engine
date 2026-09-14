@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DCF Valuation Engine — what a company is worth, and what the market believes</title>
+<meta name="description" content="A plain-English, interactive walkthrough of a two-way discounted-cash-flow model: forward to a fair value, reverse to the growth the market is pricing in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F6F3; --panel:#FFFFFF; --ink:#22303A; --muted:#5C6870;
+    --rule:#D6DBD3; --you:#176B66; --you-soft:#DDEDEA; --mkt:#93323C; --mkt-soft:#F2E1E2;
+    --hist:#7A8590;
+  }
+  *{box-sizing:border-box}
+  html{font-size:17px}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;line-height:1.55}
+  a{color:var(--you)}
+  h1,h2,h3{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .5rem}
+  h1{font-size:clamp(1.9rem,4.5vw,3rem);max-width:22ch}
+  h2{font-size:1.55rem;margin-top:0}
+  h3{font-size:1.1rem}
+  p{max-width:68ch;margin:0 0 1rem}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 1.25rem}
+  header{padding:1.1rem 0;border-bottom:1px solid var(--rule)}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .brand{font-weight:600;text-decoration:none;color:var(--ink)}
+  nav a{margin-left:1.25rem;text-decoration:none;font-weight:500}
+  .hero{padding:3.5rem 0 2rem}
+  .lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+  .demo{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:1.5rem 0 1rem}
+  .side{background:var(--panel);border:1px solid var(--rule);padding:1.4rem;border-radius:6px}
+  .side.you{border-top:4px solid var(--you)}
+  .side.mkt{border-top:4px solid var(--mkt)}
+  .side h2{font-size:1.25rem}
+  .side .sub{color:var(--muted);font-size:.95rem;margin-bottom:1.1rem}
+  .big{font-family:"IBM Plex Serif",Georgia,serif;font-size:2.6rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+  .you .big{color:var(--you)} .mkt .big{color:var(--mkt)}
+  .biglabel{color:var(--muted);font-size:.95rem;margin:.25rem 0 1.1rem}
+  .ctl{margin:.8rem 0}
+  .ctl label{display:flex;justify-content:space-between;font-size:.95rem;font-weight:500}
+  .ctl label output{font-variant-numeric:tabular-nums;font-weight:600}
+  .ctl small{display:block;color:var(--muted);font-size:.82rem;margin-top:.15rem}
+  input[type=range]{width:100%;accent-color:var(--you);margin:.35rem 0 0}
+  .mkt input[type=range]{accent-color:var(--mkt)}
+  input[type=number],input[type=text]{font:inherit;padding:.35rem .5rem;border:1px solid var(--rule);border-radius:4px;width:100%;background:#fff}
+  .verdict{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:1.4rem 1.5rem;margin-bottom:1rem}
+  .verdict p{font-size:1.15rem;max-width:none;margin:0}
+  .verdict b.you{color:var(--you)} .verdict b.mkt{color:var(--mkt)}
+  svg{display:block;width:100%;height:auto;margin-top:.5rem}
+  .svglabel{font-size:12px;fill:var(--muted)}
+  .svgval{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  section{padding:2.5rem 0;border-top:1px solid var(--rule)}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;counter-reset:s}
+  .step{counter-increment:s}
+  .step::before{content:counter(s);display:inline-block;font-family:"IBM Plex Serif",Georgia,serif;font-size:1.6rem;color:var(--you);font-weight:600;margin-bottom:.3rem}
+  .step h3{margin-bottom:.35rem}
+  .step p{font-size:.95rem;color:var(--muted);margin:0}
+  dl{display:grid;grid-template-columns:max-content 1fr;gap:.6rem 1.5rem;max-width:80ch}
+  dt{font-weight:600} dd{margin:0;color:var(--muted)}
+  details{border:1px solid var(--rule);border-radius:6px;background:var(--panel);padding:.9rem 1.2rem;max-width:80ch}
+  summary{cursor:pointer;font-weight:500}
+  .inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem 1rem;margin-top:1rem}
+  .inputs label{font-size:.85rem;font-weight:500;display:block}
+  .btn{display:inline-block;padding:.6rem 1rem;border-radius:4px;text-decoration:none;font-weight:500;border:1px solid var(--ink);color:var(--ink);margin-right:.6rem;margin-top:.4rem}
+  .btn.primary{background:var(--ink);color:#fff}
+  footer{padding:2rem 0 3rem;color:var(--muted);font-size:.9rem;border-top:1px solid var(--rule)}
+  :focus-visible{outline:3px solid var(--you);outline-offset:2px}
+  @media (max-width:820px){.demo,.steps{grid-template-columns:1fr}.inputs{grid-template-columns:1fr 1fr}html{font-size:16px}}
+  @media (max-width:480px){.inputs{grid-template-columns:1fr}dl{grid-template-columns:1fr}dd{margin-bottom:.4rem}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="brand" href="#">DCF Valuation Engine</a>
+  <nav>
+    <a href="#how">How it works</a>
+    <a href="#words">Glossary</a>
+    <a href="https://github.com/donmontilla/upgraded-dcf-engine">Code on GitHub</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>What is a company worth — and what does the stock market already believe?</h1>
+    <p class="lede">A discounted-cash-flow model answers the first question. This one also answers the second, by running the same math backwards. Move the sliders and watch both answers change.</p>
+  </div>
+
+  <div class="demo">
+    <div class="side you">
+      <h2>Your view</h2>
+      <p class="sub">Pick assumptions about the business. The model turns them into a fair price per share.</p>
+      <div class="big" id="fairValue">$—</div>
+      <div class="biglabel">fair value per share, base case (range shown below)</div>
+
+      <div class="ctl">
+        <label for="g0">Revenue growth next year <output id="g0v"></output></label>
+        <input type="range" id="g0" min="-0.05" max="0.30" step="0.005" value="0.08">
+        <small>Fades gradually to the long-run rate over 10 years.</small>
+      </div>
+      <div class="ctl">
+        <label for="wacc">Required return (WACC) <output id="waccv"></output></label>
+        <input type="range" id="wacc" min="0.06" max="0.14" step="0.001" value="0.093">
+        <small>How much investors demand for the risk. Higher = future cash worth less today.</small>
+      </div>
+      <div class="ctl">
+        <label for="mlr">Long-run operating margin <output id="mlrv"></output></label>
+        <input type="range" id="mlr" min="0.05" max="0.45" step="0.005" value="0.30">
+        <small>The share of each sales dollar left as profit before interest and tax, years from now.</small>
+      </div>
+      <div class="ctl">
+        <label for="tg">Growth forever after year 10 <output id="tgv"></output></label>
+        <input type="range" id="tg" min="0.0" max="0.04" step="0.0025" value="0.025">
+        <small>Usually near inflation or the economy's growth rate.</small>
+      </div>
+    </div>
+
+    <div class="side mkt">
+      <h2>The market's view</h2>
+      <p class="sub">Hold the current share price fixed instead, and solve for the growth that would justify it.</p>
+      <div class="big" id="impliedCagr">—</div>
+      <div class="biglabel">yearly revenue growth the market is pricing in, for the next 10 years</div>
+
+      <div class="ctl">
+        <label for="price">Current share price <output id="pricev"></output></label>
+        <input type="range" id="price" min="50" max="500" step="1" value="282">
+        <small>Drag it to see how expectations move with the price.</small>
+      </div>
+      <div class="ctl">
+        <label for="hist">Growth the company actually delivered <output id="histv"></output></label>
+        <input type="range" id="hist" min="-0.05" max="0.30" step="0.005" value="0.02">
+        <small>Historical yearly revenue growth — the reality check.</small>
+      </div>
+      <svg id="gapChart" viewBox="0 0 440 168" role="img" aria-label="Implied growth versus historical growth"></svg>
+    </div>
+  </div>
+
+  <div class="verdict"><p id="verdictText"></p></div>
+  <svg id="priceChart" viewBox="0 0 1040 120" role="img" aria-label="Fair value range versus market price"></svg>
+  <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem">Example company: <span id="coName"></span>. Numbers are from a mid-2026 run of the notebook and are for illustration. Not investment advice.</p>
+
+  <section id="how">
+    <h2>How it works, in four steps</h2>
+    <div class="steps">
+      <div class="step"><h3>Forecast the cash</h3><p>Start from today's revenue. Grow it each year, apply the operating margin, subtract tax, equipment spending and working-capital needs. What is left is free cash flow — money the business could hand to its owners.</p></div>
+      <div class="step"><h3>Shrink future dollars</h3><p>A dollar ten years out is worth less than a dollar today, and a risky dollar is worth less than a safe one. Each year's cash is divided down by the required return (WACC) to get its value today.</p></div>
+      <div class="step"><h3>Add up and divide</h3><p>Sum the ten years plus a "terminal value" for everything after year 10, subtract debt, add cash, divide by the share count. That is the fair value per share — your view.</p></div>
+      <div class="step"><h3>Run it in reverse</h3><p>Instead of guessing growth and getting a price, take the real price and search for the growth that produces it. That is the growth the market is betting on. Compare it with history and you have an argument, not just a number.</p></div>
+    </div>
+    <p style="margin-top:1.5rem">Forward and reverse are not two models. They are one function solved for different unknowns, which is why the notebook can check itself: value a company forward, feed that price into the reverse solver, and it must recover the growth rate it started with.</p>
+  </section>
+
+  <section id="words">
+    <h2>Words used here</h2>
+    <dl>
+      <dt>Free cash flow</dt><dd>Cash the business generates after paying for what it needs to keep running and growing. The thing being valued.</dd>
+      <dt>Discounting</dt><dd>Translating a future amount into what it is worth today. More time or more risk means a bigger haircut.</dd>
+      <dt>WACC</dt><dd>Weighted average cost of capital: the blended return the company's lenders and shareholders require. Used as the discount rate.</dd>
+      <dt>Operating margin</dt><dd>Operating profit as a share of revenue, before interest and tax.</dd>
+      <dt>Terminal value</dt><dd>A single number standing in for all cash flows after the ten-year forecast, assuming steady modest growth forever.</dd>
+      <dt>Implied growth</dt><dd>The growth rate that makes the model's price equal the market's price. Read it as "what the market must believe."</dd>
+      <dt>CAGR</dt><dd>Compound annual growth rate — the single yearly rate that gets you from the start value to the end value over several years.</dd>
+      <dt>Beta</dt><dd>How much a stock moves relative to the whole market. Feeds into the required return. The notebook estimates it from five years of weekly prices.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Use your own numbers</h2>
+    <p>The sliders above use a fixed set of company inputs. Open this panel to change them (from any company's annual report) and the page recalculates. For live data, automatic estimation of every input, sensitivity tables and self-tests, run the notebook.</p>
+    <details>
+      <summary>Company inputs</summary>
+      <div class="inputs">
+        <label>Company name<input type="text" id="in_name" value="Apple (AAPL), FY2025 data"></label>
+        <label>Revenue, $ billions<input type="number" id="in_rev" value="416" step="1"></label>
+        <label>Operating margin today, %<input type="number" id="in_m0" value="32" step="0.5"></label>
+        <label>Tax rate, %<input type="number" id="in_tax" value="16" step="0.5"></label>
+        <label>Depreciation, % of revenue<input type="number" id="in_da" value="2.8" step="0.1"></label>
+        <label>Capital spending, % of revenue<input type="number" id="in_capex" value="3.0" step="0.1"></label>
+        <label>Working capital per $ of new revenue, %<input type="number" id="in_nwc" value="-2" step="0.5"></label>
+        <label>Net debt (debt minus cash), $ billions<input type="number" id="in_nd" value="66" step="1"></label>
+        <label>Shares outstanding, billions<input type="number" id="in_sh" value="14.9" step="0.1"></label>
+      </div>
+    </details>
+    <p style="margin-top:1.5rem">
+      <a class="btn primary" href="https://colab.research.google.com/github/donmontilla/upgraded-dcf-engine/blob/main/dcf_valuation_engine.ipynb">Open the notebook in Colab</a>
+      <a class="btn" href="https://github.com/donmontilla/upgraded-dcf-engine">Read the code</a>
+    </p>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  Built by <a href="https://www.linkedin.com/in/donalfonso/">Don Montilla</a>, B.S. Business Economics, UC San Diego. The page runs the same forward and reverse math as the notebook, simplified to fixed inputs. MIT licensed.
+</div></footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const pct = x => (x*100).toFixed(1) + '%';
+  const usd = x => '$' + x.toLocaleString('en-US',{maximumFractionDigits:0});
+
+  // ---- the model: same structure as DCFModel in the notebook ----
+  function growthPath(g0, tg, n){ const out=[]; for(let i=0;i<n;i++){ const w=i/(n-1); out.push((1-w)*g0 + w*tg);} return out; }
+  function marginPath(m0, mlr, n){ const out=[]; for(let i=1;i<=n;i++){ out.push(m0 + (mlr-m0)*i/n);} return out; }
+  function horizonCagr(g0, tg, n){ let f=1; for(const g of growthPath(g0,tg,n)) f*=1+g; return Math.pow(f,1/n)-1; }
+  function valuePerShare(g0, P){
+    const n=10, gs=growthPath(g0,P.tg,n), ms=marginPath(P.m0,P.mlr,n);
+    let rev=P.rev, pv=0, fcf=0;
+    for(let yr=1; yr<=n; yr++){
+      const r=rev*(1+gs[yr-1]), ebit=r*ms[yr-1];
+      fcf = ebit*(1-P.tax) + r*P.da - r*P.capex - (r-rev)*P.nwc;
+      pv += fcf/Math.pow(1+P.wacc,yr); rev=r;
+    }
+    if(P.wacc<=P.tg) return NaN;
+    const tv = fcf*(1+P.tg)/(P.wacc-P.tg);
+    pv += tv/Math.pow(1+P.wacc,n);
+    return (pv-P.nd)/P.sh;
+  }
+  // reverse: bisection on g0 (the notebook uses Brent's method; same idea, same answer)
+  function impliedGrowth(price, P){
+    let lo=-0.20, hi=0.80, flo=valuePerShare(lo,P)-price, fhi=valuePerShare(hi,P)-price;
+    if(isNaN(flo)||isNaN(fhi)||flo*fhi>0) return null;
+    for(let i=0;i<80;i++){ const mid=(lo+hi)/2, fm=valuePerShare(mid,P)-price; if(fm*flo>0){lo=mid;flo=fm;} else {hi=mid;} }
+    return (lo+hi)/2;
+  }
+
+  function readInputs(){
+    return {
+      rev: +$('in_rev').value*1e9, m0:+$('in_m0').value/100, tax:+$('in_tax').value/100,
+      da:+$('in_da').value/100, capex:+$('in_capex').value/100, nwc:+$('in_nwc').value/100,
+      nd:+$('in_nd').value*1e9, sh:+$('in_sh').value*1e9,
+      wacc:+$('wacc').value, mlr:+$('mlr').value, tg:+$('tg').value
+    };
+  }
+
+  function drawGap(implied, hist, base){
+    const svg=$('gapChart'); const W=440, H=168, left=150, right=W-20, y0=22, step=42;
+    const vals=[['Market implies', implied, 'var(--mkt)'], ['Company delivered', hist, 'var(--hist)'], ['Your base case', base, 'var(--you)']];
+    const maxv=Math.max(0.05, ...vals.map(v=>Math.abs(v[1]||0)))*1.15;
+    const x=v=>left + Math.max(0,v)/maxv*(right-left);
+    let s='';
+    vals.forEach((v,i)=>{
+      const y=y0+i*step;
+      s+=`<text class="svglabel" x="${left-10}" y="${y+16}" text-anchor="end">${v[0]}</text>`;
+      if(v[1]===null){ s+=`<text class="svglabel" x="${left+4}" y="${y+16}">price not reachable by growth alone</text>`; return; }
+      const w=Math.max(2, x(v[1])-left);
+      s+=`<rect x="${left}" y="${y}" width="${w}" height="22" rx="2" fill="${v[2]}"></rect>`;
+      s+=`<text class="svgval" x="${left+w+6}" y="${y+16}" fill="${v[2]}">${pct(v[1])}</text>`;
+    });
+    if(implied!==null){
+      const gap=implied-hist;
+      s+=`<text class="svglabel" x="${left}" y="${H-4}">Expectations gap: ${gap>=0?'+':''}${(gap*100).toFixed(1)} points per year</text>`;
+    }
+    svg.innerHTML=s;
+  }
+
+  function drawPrice(bear, base, bull, price){
+    const svg=$('priceChart'); const W=1040, H=120, left=40, right=W-40;
+    const lo=Math.min(bear,price)*0.85, hi=Math.max(bull,price)*1.15;
+    const x=v=>left+(v-lo)/(hi-lo)*(right-left);
+    let s='';
+    s+=`<line x1="${left}" y1="70" x2="${right}" y2="70" stroke="var(--rule)" stroke-width="2"/>`;
+    s+=`<rect x="${x(bear)}" y="52" width="${x(bull)-x(bear)}" height="36" rx="3" fill="var(--you-soft)" stroke="var(--you)"/>`;
+    s+=`<line x1="${x(base)}" y1="48" x2="${x(base)}" y2="92" stroke="var(--you)" stroke-width="3"/>`;
+    s+=`<text class="svglabel" x="${x(bear)}" y="108" text-anchor="middle">bear ${usd(bear)}</text>`;
+    s+=`<text class="svgval" x="${x(base)}" y="40" text-anchor="middle" fill="var(--you)">your fair value ${usd(base)}</text>`;
+    s+=`<text class="svglabel" x="${x(bull)}" y="108" text-anchor="middle">bull ${usd(bull)}</text>`;
+    s+=`<line x1="${x(price)}" y1="30" x2="${x(price)}" y2="100" stroke="var(--mkt)" stroke-width="3"/>`;
+    s+=`<text class="svgval" x="${x(price)}" y="22" text-anchor="middle" fill="var(--mkt)">market price ${usd(price)}</text>`;
+    svg.innerHTML=s;
+  }
+
+  function update(){
+    const P=readInputs(); const g0=+$('g0').value, price=+$('price').value, hist=+$('hist').value;
+    $('g0v').value=pct(g0); $('waccv').value=pct(P.wacc); $('mlrv').value=pct(P.mlr); $('tgv').value=pct(P.tg);
+    $('pricev').value=usd(price); $('histv').value=pct(hist); $('coName').textContent=$('in_name').value;
+
+    const base=valuePerShare(g0,P), bear=valuePerShare(g0-0.04,P), bull=valuePerShare(g0+0.04,P);
+    $('fairValue').textContent=isNaN(base)?'n/a':usd(base);
+    const ig=impliedGrowth(price,P); const cagr=ig===null?null:horizonCagr(ig,P.tg,10);
+    $('impliedCagr').textContent=cagr===null?'unreachable':pct(cagr);
+
+    const name=$('in_name').value.split(' (')[0]||'the company';
+    let v;
+    if(isNaN(base)) v='Required return must be above the long-run growth rate for the model to work.';
+    else if(cagr===null) v=`At these assumptions, <b class="you">${name} is worth about ${usd(base)} a share</b>, and no growth rate inside the model's range can justify a price of ${usd(price)} — the price implies something other than growth (higher margins, or a lower required return).`;
+    else v=`At these assumptions, <b class="you">${name} is worth about ${usd(base)} a share</b>. It trades at <b class="mkt">${usd(price)}</b>. For that price to make sense, revenue would need to grow about <b class="mkt">${pct(cagr)} a year for ten years</b>; it has actually grown about ${pct(hist)}. ${cagr-hist>0.03?'The market is betting on a lot more than the past shows.':cagr-hist<-0.03?'The market expects less than the company has delivered.':'The market and the track record are roughly in line.'}`;
+    $('verdictText').innerHTML=v;
+    drawGap(cagr, hist, horizonCagr(g0,P.tg,10));
+    if(!isNaN(base)) drawPrice(bear,base,bull,price);
+  }
+  document.querySelectorAll('input').forEach(el=>el.addEventListener('input',update));
+  update();
+})();
+</script>
+</body>
+</html>
