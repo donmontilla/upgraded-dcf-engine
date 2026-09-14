@@ -41,9 +41,9 @@ Under conservative assumptions, the model values Apple at about **$130 a share**
 
 ## Three ways to use it
 
-1. **Just look.** The [interactive page](https://donmontilla.github.io/upgraded-dcf-engine/) runs the forward and reverse math in your browser with example inputs, and you can type in any company's numbers from its annual report.
-2. **Run it on any stock.** Click the Colab badge above, change `CONFIG["TICKER"]`, and choose *Runtime → Run all*. It pulls live financials and prices, estimates every driver from the company's own history, and prints the full analysis with charts.
-3. **Run it locally.**
+1. **Look** The [interactive page](https://donmontilla.github.io/upgraded-dcf-engine/) runs the forward and reverse math in your browser with example inputs, and you can type in any company's numbers from its annual report.
+2. **Run on any stock** Click the Colab badge above, change `CONFIG["TICKER"]`, and choose *Runtime → Run all*. It pulls live financials and prices, estimates every driver from the company's own history, and prints the full analysis with charts.
+3. **Run it locally**
    ```bash
    pip install -r requirements.txt
    jupyter notebook dcf_valuation_engine.ipynb
