@@ -1,4 +1,4 @@
-# DCF Valuation Engine
+_# DCF Valuation Engine
 
 **What is a company worth - and what does the stock market already believe?**
 
@@ -16,28 +16,28 @@ Most valuation models answer the first question. This one also answers the secon
 
 ## The one-minute version
 
-A **discounted-cash-flow (DCF) model** estimates what a business is worth by forecasting the cash it will generate and translating that future cash into today's dollars. You feed it assumptions (how fast sales grow, how profitable the company stays, how risky it is) and it gives you a fair price per share.
+A discounted-cash-flow (DCF) model estimates what a business is worth by forecasting the cash it will generate and translating that future cash into today's dollars. You feed it assumptions (how fast sales grow, how profitable the company stays, how risky it is) and it gives you a fair price per share.
 
 The catch: the answer is only as good as the assumptions, and it is easy to nudge the inputs until the model says whatever you want.
 
-So this engine also runs **in reverse**. Instead of guessing growth and getting a price, it takes the *actual* share price and solves for the growth rate that would justify it. That tells you what the market must be betting on. Compare it with what the company has historically delivered, and you have an argument instead of a single number.
+So this engine also runs in reverse! Instead of guessing growth and getting a price, it takes the *actual* share price and solves for the growth rate that would justify it. That tells you what the market must be betting on. Compare it with what the company has historically delivered, and you have an argument instead of a single number.
 
 | Direction | You give it | It tells you |
 |---|---|---|
 | **Forward** (your view) | Growth, margin, and risk assumptions | Fair value per share, with a bear-to-bull range |
 | **Reverse** (the market's view) | Today's share price | The yearly growth the market is pricing in |
 
-Both directions use the *same* function, solved for a different unknown. That is why the notebook can check itself: value a company forward, feed that price into the reverse solver, and it must recover the growth rate it started with.
+Both directions use the same function, solved for a different unknown. That is why the notebook can check itself: value a company forward, feed that price into the reverse solver, and it must recover the growth rate it started with.
 
 ## Example: Apple, mid-2026
 
 ![Forward vs reverse DCF for Apple](synthesis.png)
 
-Under conservative assumptions, the model values Apple at about **$130 a share**. It traded at **$282**. For that price to make sense, revenue would need to grow about **15% a year for ten years** - against a historical rate near **2%**. The 13-point gap is the debate. The tool does not settle it; it makes it visible and quantifies it.
+Under conservative assumptions, the model values Apple at about $130 a share. It traded at $282. For that price to make sense, revenue would need to grow about 15% a year for ten years - against a historical rate near 2%. The 13-point gap is the debate. The tool does not settle it; it makes it visible and quantifies it.
 
 ![Share price vs implied growth](implied_growth_curve.png)
 
-*The reverse solver run across a range of prices: every price implies a growth rate, and the higher the price, the more growth it assumes.*
+The reverse solver run across a range of prices: every price implies a growth rate, and the higher the price, the more growth it assumes.
 
 ## Three ways to use it
 
@@ -111,3 +111,4 @@ Developed with AI-assisted coding. The modeling decisions - growth-path structur
 **Don Montilla** - B.S. Business Economics, UC San Diego · [LinkedIn](https://www.linkedin.com/in/donalfonso/)
 
 Licensed under the [MIT License](LICENSE).
+___
