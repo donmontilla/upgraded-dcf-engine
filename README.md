@@ -10,7 +10,7 @@ Most valuation models answer the first question. This one also answers the secon
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-![Interactive page](assets/interactive_page.png)
+![Interactive page](interactive_page.png)
 
 ---
 
@@ -31,19 +31,19 @@ Both directions use the *same* function, solved for a different unknown. That is
 
 ## Example: Apple, mid-2026
 
-![Forward vs reverse DCF for Apple](assets/synthesis.png)
+![Forward vs reverse DCF for Apple](synthesis.png)
 
 Under conservative assumptions, the model values Apple at about **$130 a share**. It traded at **$282**. For that price to make sense, revenue would need to grow about **15% a year for ten years** — against a historical rate near **2%**. The 13-point gap is the debate. The tool does not settle it; it makes it visible and quantifies it.
 
-![Share price vs implied growth](assets/implied_growth_curve.png)
+![Share price vs implied growth](implied_growth_curve.png)
 
 *The reverse solver run across a range of prices: every price implies a growth rate, and the higher the price, the more growth it assumes.*
 
 ## Three ways to use it
 
-1. **Look** The [interactive page](https://donmontilla.github.io/upgraded-dcf-engine/) runs the forward and reverse math in your browser with example inputs, and you can type in any company's numbers from its annual report.
-2. **Run on any stock** Click the Colab badge above, change `CONFIG["TICKER"]`, and choose *Runtime → Run all*. It pulls live financials and prices, estimates every driver from the company's own history, and prints the full analysis with charts.
-3. **Run it locally**
+1. **Just look.** The [interactive page](https://donmontilla.github.io/upgraded-dcf-engine/) runs the forward and reverse math in your browser with example inputs, and you can type in any company's numbers from its annual report.
+2. **Run it on any stock.** Click the Colab badge above, change `CONFIG["TICKER"]`, and choose *Runtime → Run all*. It pulls live financials and prices, estimates every driver from the company's own history, and prints the full analysis with charts.
+3. **Run it locally.**
    ```bash
    pip install -r requirements.txt
    jupyter notebook dcf_valuation_engine.ipynb
@@ -87,9 +87,11 @@ Yahoo Finance typically returns only about four years of annual statements, so t
 
 ```
 .
+├── index.html                   # the interactive explainer (served by GitHub Pages)
 ├── dcf_valuation_engine.ipynb   # the engine: data pull, driver estimation, forward + reverse, self-tests
-├── docs/index.html              # the interactive explainer (GitHub Pages)
-├── assets/                      # charts used in this README
+├── synthesis.png                # charts used in this README
+├── interactive_page.png
+├── implied_growth_curve.png
 ├── requirements.txt
 ├── CHANGELOG.md                 # v1 → v2: what was wrong and what was fixed
 ├── LICENSE
